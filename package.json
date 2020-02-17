@@ -1,0 +1,13 @@
+{
+	"name": "nikl",
+	"description": "discord bot",
+	"version": "0.8.3",
+	"main": "index.js",
+	"scripts": {
+		"main": "node index.js"
+	},
+	"dependencies": {
+		"discord.js": "^11.1.0",
+		"request": "^2.81.0"
+	}
+}
