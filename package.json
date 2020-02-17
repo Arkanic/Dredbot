@@ -1,0 +1,27 @@
+{
+  "name": "nikl",
+  "version": "1.0.0",
+  "description": "discord bot",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arkanic/nikl.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "Arkanic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Arkanic/nikl/issues"
+  },
+  "homepage": "https://github.com/Arkanic/nikl#readme"
+}
