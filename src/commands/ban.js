@@ -10,4 +10,4 @@ module.exports = {
         return member.ban().then(() => message.reply(`${member.user.tag} was successfully banned.`)).catch(error => 
         message.reply("Some sort of error happened in the process..."));
     }
-}
+};

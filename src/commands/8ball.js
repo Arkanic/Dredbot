@@ -5,4 +5,4 @@ module.exports = {
     execute(message) {
         message.channel.send(predictions[Math.floor(Math.random()*predictions.length-1)]);
     }
-}
+};
