@@ -3,6 +3,6 @@ module.exports = {
     name: "8ball",
     description: "predict some stuff",
     execute(message) {
-        message.channel.send(predictions[Math.random()*predictions.length]);
+        message.channel.send(predictions[Math.floor(Math.random()*predictions.length-1)]);
     }
 }
