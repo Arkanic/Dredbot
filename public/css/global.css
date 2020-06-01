@@ -1,0 +1,58 @@
+body {
+  font-family: "Lato", sans-serif;
+  background: url("/img/bg_stars.png");
+  color: #E1E1E1;
+}
+.sidenav {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+  background-color: #111;
+}
+div.grad {
+  background-image: linear-gradient(to right, red , #111);
+  padding: 0;
+}
+.sidenav a {
+  padding: 16px 8px 16px 8px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #919191;
+  display: block;
+}
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+.main {
+  margin-left: 250px;
+  font-size: 18px;
+  padding: 10px 30px;
+  background: rgba(255, 255, 255, 0.4);
+}
+.title {
+  font-size: 50px;
+}
+.titlesec {
+  display: flex;
+}
+.titlesec img {
+  margin-right: 10px;
+  display: block;
+  size: 100% 100%;
+}
+.titlesec h2, .titlesec p {
+  margin: 0;
+}
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}

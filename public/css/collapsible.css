@@ -1,0 +1,35 @@
+.collapsible {
+  background-color: rgba(100, 100, 100, 0.9);
+  color: #999;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 20px;
+}
+
+.collapsible:after {
+  content: "\2795";
+  font-size: 10px;
+  color: white;
+  float: right;
+  margin-left: 5px;
+}
+
+.active, .collapsible:hover {
+  background-color: #BBB;
+}
+
+.active:after {
+  content: "\2796"
+}
+
+.content {
+  padding: 0 18px;
+  background-color: rgba(50, 50, 50, 0.5);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}

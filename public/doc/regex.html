@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Dredbot Documentation - Regex</title>
+    <link type="text/css" href="https://dredbot--tal0s.repl.co/css/text.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <h1>Regex for ;ldb</h1>
+    <p>The ;ldb leaderboard command supports regex whilst using the -r tag.</p>
+    <h3>Example:</h3>
+    <p><code>;ldb -r /^noob/i</code></p>
+    <p>Basic regex is formatted with two forwards slashes, with the search query going between the slashes and the settings at the end.</p>
+    <hr></hr>
+    <h2>Basics</h2>
+    <h3>Anchors</h3>
+    <code>
+^Start.    - matches any string that starts with "Start."
+End$       - matches any string that ends with "End."
+    </code>
+    <h3>Quantifiers</h3>
+    <code>
+123*       - matches any string that has a 12 followed by zero or more of the character 3.
+123+       - matches any string that has 12 followed by one or more of the character 3.
+123?       - matches any string that has 0 or 1 of the character 3.
+123{2}     - matches any string that has 12 followed by 2 3s.
+123{2,}    - matches any string that has 12 followed by 2 or more 3s.
+123{2,5}   - matches any string that has 12 followed by 2 to 5 3s.
+1(23)*     - matches any string that has 1 followed by any amount of the sequence "23".
+1(23){2,5} - matches any string that has 1 followed by 2 to 5 of the sequence "23".
+    </code>
+    <h3>OR Operators</h3>
+    <code>
+1(2|3)     - matches any string that has a 1 followed by a 2 or 3, and captures 2 or 3.
+1[23]      - same as above, but does not capture 2 or 3.
+    </code>
+    <h3>Character matches</h3>
+    <code>
+\d         - matches any single character digit.
+\w         - matches any word character (alphanumeric + underscore).
+\s         - matches any whitespace character (space, tab, 0 width, etc).
+.          - matches anything.
+    </code>
+    <p>You can capitalise the characters in the backspace to make them match the opposite, e.g. \D would match any non-digit, and \S would match any non-whitespace character.</p>
+    <p>In order to be taken literally, you must use the escape characters ^.[$()|*+?{\ with a backslash as they have a special meaning.</p>
+    <code>
+\$\d       - matches a string that has a $ before one digit.
+    </code>
+    <p>You can also match non-printables like newlines, tabs, and returns (although impossible to name a ship with the latter) with their respective backslash identifiers (\n, \t, and \r.)</p>
+    <h3>Flags</h3>
+    <p>regex is normally comes with the form /abc/, where the search pattern is identified by being inbetween the two slashes (/). At the end we can specify specific flags that will affect how the search comes out.</p>
+    <ul>
+      <li><b>g</b> (global) does not return after the first match, restarting the subsequent searches from the end of the previous match.</li>
+      <li><b>m</b> (multi-line) [useless for ;ldb search] when enabled ^ and $ will match the start and end of a line, rather than the whole string.</li>
+      <li><b>i</b> (insensitive) makes the entire string case-insensitive.
+    </ul>
+    <h3>Brackets</h3>
+    <code>
+[abc]      - matches any string that has either an a or a b or a c. same as (a|b|c).
+[a-c]      - same as previous.
+[a-fA-F0-9]- matches any single hexadecimal character.
+[0-9]h     - matches any number before a h.
+[^a-zA-Z]  - matches any character that is not a lower or upper case alphabetic character.
+    </code>
+  </body>
+</html>
