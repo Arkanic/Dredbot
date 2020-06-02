@@ -10,13 +10,13 @@ function loadserversinfo() {
           sn.push(i);
         }
         let sern = Math.max(...sn);
-        let text = document.createElement("h3").appendChild(document.createTextNode(servers[sern].name));
-        document.getElementById("topservers").appendChild(text);
+        let text = document.createElement("figcaption").appendChild(document.createTextNode(servers[sern].name));
         let iconimg = document.createElement("img");
         iconimg.src=servers[sern].icon;
         iconimg.width=64;
         iconimg.height=64;
         document.getElementById("topservers").appendChild(iconimg);
+        document.getElementById("topservers").appendChild(text);
         document.getElementById("topservers").appendChild(document.createElement("hr"));
         delete servers[sern];
       }
