@@ -31,6 +31,17 @@ app.get("/api/documentation", (request, response) => {
   });
   response.send(JSON.stringify(msg));
 });
+app.get("/api/servers", (request, response) => {
+  response.type("json");
+  let msg = {};
+  client.guilds.forEach(guild => {
+    msg[guild.memberCount] = {
+      name:guild.name,
+      icon:`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+    };
+  });
+  response.send(JSON.stringify(msg));
+});
 
 client.once("ready", () => {
   console.log(`Servers: ${client.guilds.size}`);
