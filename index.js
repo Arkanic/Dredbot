@@ -83,7 +83,7 @@ client.on("message", async message => {
 
   try {
     await command.execute(message, cache, client);
-    console.log(`Command: ${command.name} | ${message.content}`);
+    console.log(`Command: ${command.name} In: ${message.guild.name} | ${message.content}`);
   } catch (error) {
     console.log(error);
     message.channel.send("There was an error.\n```" + error + "```");
@@ -146,18 +146,22 @@ setInterval(() => {
 }, (1000*60)*60)
 
 function getPlayers() {
-  const sockets = {
-    US: new WebSocket("wss://d0.drednot.io:4000"),
-    Poland: new WebSocket("wss://d1.drednot.io:4000"),
-    Test: new WebSocket("wss://t0.drednot.io:4000")
-  };
-  for(let i in sockets) {
-    sockets[i].addEventListener("open", (e) => {
-      sockets[i].send("yo");
-    });
-    sockets[i].addEventListener("message", (e) => {
-      cache.dredplayers[i] = JSON.parse(e.data);
-    });
+  try {
+    const sockets = {
+      US: new WebSocket("wss://d0.drednot.io:4000"),
+      Poland: new WebSocket("wss://d1.drednot.io:4000"),
+      Test: new WebSocket("wss://t0.drednot.io:4000")
+    };
+    for(let i in sockets) {
+      sockets[i].addEventListener("open", (e) => {
+        sockets[i].send("yo");
+      });
+      sockets[i].addEventListener("message", (e) => {
+        cache.dredplayers[i] = JSON.parse(e.data);
+      });
+    }
+  } catch(err) {
+    console.log("PLAYERCOUNT FAIL (Server offline)");
   }
 }
 
