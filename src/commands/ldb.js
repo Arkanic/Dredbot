@@ -1,13 +1,12 @@
 const regpar = require("regex-parser");
 const trunc = require("../lib/truncatestr");
-const {prefix} = require("../etc/config/config.json");
 
 module.exports = {
   name: "ldb",
   description: "A better Leaderboard",
   documentation: "search through the top 50k ships by name; also view the total points for that search. Currently not case-sensitive. Supports advanced regex search. Use -r at the end of the command name (with a space at either side) to use regex formatting. Example: ;ldb -r /[a-z]/i",
-  execute(message, cache, client) {
-    let query = message.content.substr(prefix.length+1 + this.name.length);
+  execute(message, cache, client, dbo, pre) {
+    let query = message.content.substr(pre.length+1 + this.name.length);
     let matches = [];
     if(query.startsWith("-r ")) { // regex
       let regexstr = regpar(query.substr(3));

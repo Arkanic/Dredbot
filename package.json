@@ -4,12 +4,15 @@
   "description": "discord bot",
   "main": "index.js",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "discord.js": "^11.5.1",
     "express": "^4.17.1",
     "mongodb": "^3.5.7",
     "nodewikiaapi": "^2.0.3",
     "regex-parser": "^2.2.10",
     "request": "^2.88.2",
+    "shortid": "^2.2.15",
     "ws": "^7.3.0",
     "yet-another-name-generator": "^1.0.4"
   },

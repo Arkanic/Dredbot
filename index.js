@@ -4,8 +4,13 @@ const path = require("path");
 const url = require("url");
 const fs = require("fs");
 const express = require("express");
+const cors = require("cors");
+const bodyparser = require("body-parser");
+const shortid = require("shortid");
 
 const app = express();
+app.use(cors());
+app.use(bodyparser.json());
 app.use(express.static("public"));
 const port = process.env.PORT || 8080;
 const server = app.listen(port);
@@ -17,13 +22,25 @@ const presencetypes = require("./src/etc/presencetypes.js");
 const client = new Client();
 client.commands = new Discord.Collection();
 
+let cache = {
+  dredplayers:{},
+  leaderboard:{},
+  settings: {}
+};
+
 const commands = fs.readdirSync("./src/commands").filter(file => file.endsWith(".js"));
 for(const file of commands) {
   const command = require(`./src/commands/${file}`);
   client.commands.set(command.name, command);
 }
 
-app.get("/api/documentation", (request, response) => {
+const apiexts = require("./src/etc/apiexts.js");
+const indexmenu = require("./src/lib/indexmenu.js");
+
+app.get("/api", (request, response) => {
+  indexmenu({name:"api",exts:apiexts}, request, response);
+});
+app.get("/api"+apiexts.documentation, (request, response) => {
   response.type("json");
   let msg = {};
   client.commands.forEach(command => {
@@ -31,7 +48,7 @@ app.get("/api/documentation", (request, response) => {
   });
   response.send(JSON.stringify(msg));
 });
-app.get("/api/servers", (request, response) => {
+app.get("/api"+apiexts.discservers, (request, response) => {
   response.type("json");
   let msg = {};
   client.guilds.forEach(guild => {
@@ -42,7 +59,25 @@ app.get("/api/servers", (request, response) => {
   });
   response.send(JSON.stringify(msg));
 });
+app.post("/api"+apiexts.settingscheck, (request, response) => {
+  let id = request.body.id;
+  response.type("json");
+  let ls = Object.values(cache.settings).find(guild => guild.loginid == id);
+  if(ls != undefined) {
+    response.send(JSON.stringify({
+      check:true
+    }));
+  } else {
+    response.send(JSON.stringify({
+      check:false
+    }));
+  }
+});
 
+const MongoClient = require("mongodb");
+let dbo;
+const IntervalGroup = require("./src/lib/intervalgroup.js");
+const intervals = new IntervalGroup();
 client.once("ready", () => {
   console.log(`Servers: ${client.guilds.size}`);
   console.log(`Users: ${client.users.size}`);
@@ -63,7 +98,42 @@ client.once("ready", () => {
       }
     });
   }, 1000*5);
+  MongoClient.connect(process.env.MONGODB, (err, db) => {
+    if(err) throw err;
+    let mdb = db.db("dredbot");
+    dbo = mdb;
+    dbo.collection("settings").find({}).toArray((err, results) => {
+      if(err) throw err;
+      for(let i in results) {
+        cache.settings[results[i].id] = results[i];
+      };
+    });
+    setInterval(() => {
+      dbo.collection("settings").find({}).toArray((err, results) => {
+        if(err) throw err;
+        for(let i in results) {
+          cache.settings[results[i].id] = results[i];
+        };
+      });
+    }, 60*60*1000);
+  });
   console.log("<Ready>");
+});
+client.on("guildCreate", guild => {
+  let obj = {
+    id: guild.id,
+    settings: {
+      prefix: ";"
+    }
+  };
+  dbo.collection("settings").insertOne(obj, (err, res) => {
+    if(err) throw err;
+    console.log(`Added to ${guild.name}, created db inst.`);
+    let query = {id:guild.id};
+    dbo.collection("settings").findOne(query).toArray((err, result) => {
+      cache.settings[guild.id] = result[0];
+    });
+  });
 });
 client.once("reconnecting", () => {
   console.log("<reconnecting>");
@@ -72,17 +142,25 @@ client.once("disconnect", () => {
   console.log("<disconnect>");
 });
 client.on("message", async message => {
-  let args = message.content.slice(prefix.length).split(/ +/);
+  let pre = "";
+  if(cache.settings != {}) {
+    if(!message.content.startsWith(cache.settings[message.guild.id].settings.prefix)) return;
+    pre = cache.settings[message.guild.id].settings.prefix;
+  } else {
+    if(!message.content.startsWith(prefix)) return;
+    pre = prefix;
+  }
+  let args = message.content.slice(pre.length).split(/ +/);
   const commandName = args.shift().toLowerCase();
   const command = client.commands.get(commandName);
-
   if (message.author.bot) return;
-  if (!message.content.startsWith(prefix)) return;
+  
   if (!command) return message.react("🤔");
   if (!cache.leaderboard) return message.channel.send(`**BOT CURRENTLY CACHING...**\n(please wait a couple of seconds and try again)\n**ACTIVE EVTS:**\n${JSON.stringify(events.events)}`);
+  if (!dbo) return message.channel.send("DB not yet connected...");
 
   try {
-    await command.execute(message, cache, client);
+    await command.execute(message, cache, client, dbo, pre);
     console.log(`Command: ${command.name} In: ${message.guild.name} | ${message.content}`);
   } catch (error) {
     console.log(error);
@@ -93,10 +171,7 @@ client.on("message", async message => {
 const WebSocket = require("ws");
 const request = require("request");
 
-let cache = {
-  dredplayers:{},
-  leaderboard:{}
-};
+
 
 const EventGroup = require("./src/lib/eventgroup.js");
 
@@ -135,16 +210,6 @@ function getLb() {
   events.trigger("lb-0", {base:true});
 };
 
-getPlayers();
-setInterval(() => {
-  getPlayers();
-}, 1000*10);
-
-cache.leaderboard = getLb();
-setInterval(() => {
-  cache.leaderboard = getLb();
-}, (1000*60)*60)
-
 function getPlayers() {
   try {
     const sockets = {
@@ -163,6 +228,17 @@ function getPlayers() {
   } catch(err) {
     console.log("PLAYERCOUNT FAIL (Server offline)");
   }
-}
+};
+
+getPlayers();
+setInterval(() => {
+  getPlayers();
+}, 1000*10);
+
+cache.leaderboard = getLb();
+setInterval(() => {
+  cache.leaderboard = getLb();
+}, (1000*60)*60)
+
 
 client.login(process.env.BOT_TOKEN);
