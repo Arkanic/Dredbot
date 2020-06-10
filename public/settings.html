@@ -2,6 +2,10 @@
 <html>
   <head>
     <title>Settings</title>
+    <link rel="icon" href="/img/helm_wheel_starter.png" type="image/png" sizes="32x32"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link type="text/css" rel="stylesheet" href="css/text.css"/>
+    <link type="text/css" rel="stylesheet" href="css/hlineh.css"/>
   </head>
   <body onload="idcookiecheck()">
     <div id="loginbox">
@@ -9,8 +13,60 @@
       <input type="button" onclick="login()" value="Login"/>
     </div>
     <p id="info"></p>
-    <div id="settingsbox">
-      <p>blah</p>
+    <div id="settingsbox" style="display:none">
+      <h1 class="title">Settings</h1>
+      <h2>Prefix</h2>
+      <table>
+        <tr>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
+          <td>Bot Prefix:</td>
+          <td><input type="text" id="s-prefix" size="1"/></td>
+        </tr>
+        <tr>
+          <td>Allow default prefix:</td>
+          <td><input type="checkbox" id="s-allow-default"/></td>
+        </tr>
+        <tr>
+          <td>Reset Prefix:</td>
+          <td><input type="button" value="Reset" onclick="resetpre()"/></td>
+        </tr>
+      </table>
+      <h2>Not A Command</h2>
+      <table>
+        <tr>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
+          <td>React to unidentified commands:</td>
+          <td><input type="checkbox" id="s-react-unidentified"/></td>
+        </tr>
+        <tr>
+          <td>React to ;-;, ;), or :(:</td>
+          <td><input type="checkbox" id="s-react-faces"/></td>
+        </tr>
+      </table>
+      <h2>Enabled Commands</h2>
+      <table>
+        <tr>
+          <th></th>
+          <th></th>
+        </tr>
+        <tr>
+          <td>Make all commands available to admins:</td>
+          <td><input type="checkbox" id="s-admin-command"/></td>
+        </tr>
+        <tr>
+          <td>Warn users if they don't have access to a command:</td>
+          <td><input type="checkbox" id="s-access-warn"/></td>
+        </tr>
+      </table>
+      <hr></hr>
+      <input type="button" onclick="submitsettings()" value="Submit"/>
+      <p id="saveinfo"></p>
     </div>
     <script src="js/settings.js"></script>
   </body>

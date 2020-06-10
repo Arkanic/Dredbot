@@ -1,5 +1,6 @@
 module.exports = {
   documentation: "/documentation",
   discservers: "/servers",
-  settingscheck: "/settingscheck"
+  settingscheck: "/settingscheck",
+  settingschange: "/settingschange"
 };

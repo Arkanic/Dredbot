@@ -7,6 +7,11 @@ h1, h2 {
 h1 {
   font-size: 18pt;
 }
+h1.title {
+  padding: 10px;
+  text-align: center;
+  font-size: 25pt;
+}
 h2 {
   font-size: 16pt;
 }

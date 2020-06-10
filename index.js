@@ -65,13 +65,36 @@ app.post("/api"+apiexts.settingscheck, (request, response) => {
   let ls = Object.values(cache.settings).find(guild => guild.loginid == id);
   if(ls != undefined) {
     response.send(JSON.stringify({
-      check:true
+      check:true,
+      prefix:ls.settings.prefix
     }));
   } else {
     response.send(JSON.stringify({
       check:false
     }));
   }
+});
+app.post("/api"+apiexts.settingschange, (request, response) => {
+  response.type("json");
+  let prefix = request.body.prefix;
+  let id = request.body.id;
+  let guild = Object.values(cache.settings).find(guild => guild.loginid == id);
+  if(!guild) {
+    response.send(JSON.stringify({
+      check:false
+    }));
+    return;
+  }
+  response.send(JSON.stringify({
+    check:true
+  }));
+  cache.settings[guild.id].settings.prefix = prefix;
+  let newvalues = {$set:{settings:{prefix:prefix}}};
+  dbo.collection("settings").updateOne({id:guild.id}, newvalues, (err, res) => {
+    if(err) throw err;
+    console.log(`Updated GP`);
+    console.log(cache.settings[guild.id])
+  });
 });
 
 const MongoClient = require("mongodb");
@@ -122,8 +145,14 @@ client.once("ready", () => {
 client.on("guildCreate", guild => {
   let obj = {
     id: guild.id,
+    loginid: shortid(),
     settings: {
-      prefix: ";"
+      prefix: ";",
+      allowdefault: true,
+      reactunidentified: true,
+      dontreactfaces: false,
+      adminallcommands: true,
+      warnnoaccess: true
     }
   };
   dbo.collection("settings").insertOne(obj, (err, res) => {
@@ -142,6 +171,7 @@ client.once("disconnect", () => {
   console.log("<disconnect>");
 });
 client.on("message", async message => {
+  if (!message.guild) return;
   let pre = "";
   if(cache.settings != {}) {
     if(!message.content.startsWith(cache.settings[message.guild.id].settings.prefix)) return;
@@ -153,8 +183,8 @@ client.on("message", async message => {
   let args = message.content.slice(pre.length).split(/ +/);
   const commandName = args.shift().toLowerCase();
   const command = client.commands.get(commandName);
+
   if (message.author.bot) return;
-  
   if (!command) return message.react("🤔");
   if (!cache.leaderboard) return message.channel.send(`**BOT CURRENTLY CACHING...**\n(please wait a couple of seconds and try again)\n**ACTIVE EVTS:**\n${JSON.stringify(events.events)}`);
   if (!dbo) return message.channel.send("DB not yet connected...");
