@@ -2,9 +2,8 @@ module.exports = {
   name: "cet",
   description: "-",
   documentation: "test feature.",
-  execute(message, cache, client, dbo, pre) {
+  execute(options) {
+    let {message, cache, client, dbo, pre} = options;
     message.react("719056273194090526");
-    const emoji = client.emojis.find(emoji => emoji.name === "ayy");
-    message.channel.send(emoji);
   }
 }

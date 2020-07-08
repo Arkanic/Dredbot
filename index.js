@@ -8,6 +8,13 @@ const cors = require("cors");
 const bodyparser = require("body-parser");
 const shortid = require("shortid");
 
+const Logger = require("./src/lib/logger.js");
+const logger = new Logger("core", "blue");
+logger.log("starting...");
+const dbolog = new Logger("mongo", "yellow");
+const cachelog = new Logger("cache", "red");
+const commandlog = new Logger("chandle", "green");
+
 const app = express();
 app.use(cors());
 app.use(bodyparser.json());
@@ -24,7 +31,7 @@ client.commands = new Discord.Collection();
 
 let cache = {
   dredplayers:{},
-  leaderboard:{},
+  leaderboard:[],
   settings: {}
 };
 
@@ -32,6 +39,7 @@ const commands = fs.readdirSync("./src/commands").filter(file => file.endsWith("
 for(const file of commands) {
   const command = require(`./src/commands/${file}`);
   client.commands.set(command.name, command);
+  logger.info(`loaded ${command.name}`);
 }
 
 const apiexts = require("./src/etc/apiexts.js");
@@ -64,9 +72,13 @@ app.post("/api"+apiexts.settingscheck, (request, response) => {
   response.type("json");
   let ls = Object.values(cache.settings).find(guild => guild.loginid == id);
   if(ls != undefined) {
+    let settings = {};
+    for(let i in ls.settings) {
+      settings[i] = ls.settings[i];
+    }
     response.send(JSON.stringify({
       check:true,
-      prefix:ls.settings.prefix
+      ...(settings)
     }));
   } else {
     response.send(JSON.stringify({
@@ -89,21 +101,18 @@ app.post("/api"+apiexts.settingschange, (request, response) => {
     check:true
   }));
   cache.settings[guild.id].settings.prefix = prefix;
-  let newvalues = {$set:{settings:{prefix:prefix}}};
+  let newvalues = {$set:{"settings.prefix":prefix}};
   dbo.collection("settings").updateOne({id:guild.id}, newvalues, (err, res) => {
     if(err) throw err;
-    console.log(`Updated GP`);
-    console.log(cache.settings[guild.id])
+    dbolog.success(`Updated GP`);
   });
 });
 
 const MongoClient = require("mongodb");
 let dbo;
-const IntervalGroup = require("./src/lib/intervalgroup.js");
-const intervals = new IntervalGroup();
 client.once("ready", () => {
-  console.log(`Servers: ${client.guilds.size}`);
-  console.log(`Users: ${client.users.size}`);
+  logger.info(`cached servers: ${client.guilds.size}`);
+  logger.info(`cached users: ${client.users.size}`);
   client.user.setPresence({
     status: "idle",
     game: {
@@ -140,7 +149,7 @@ client.once("ready", () => {
       });
     }, 60*60*1000);
   });
-  console.log("<Ready>");
+  logger.success("<Ready>");
 });
 client.on("guildCreate", guild => {
   let obj = {
@@ -157,7 +166,7 @@ client.on("guildCreate", guild => {
   };
   dbo.collection("settings").insertOne(obj, (err, res) => {
     if(err) throw err;
-    console.log(`Added to ${guild.name}, created db inst.`);
+    dbolog.success(`Added to ${guild.name}, created db inst.`);
     let query = {id:guild.id};
     dbo.collection("settings").findOne(query).toArray((err, result) => {
       cache.settings[guild.id] = result[0];
@@ -165,10 +174,10 @@ client.on("guildCreate", guild => {
   });
 });
 client.once("reconnecting", () => {
-  console.log("<reconnecting>");
+  console.warn("<reconnecting>");
 });
 client.once("disconnect", () => {
-  console.log("<disconnect>");
+  console.warn("<disconnect>");
 });
 client.on("message", async message => {
   if (!message.guild) return;
@@ -186,59 +195,52 @@ client.on("message", async message => {
 
   if (message.author.bot) return;
   if (!command) return message.react("🤔");
-  if (!cache.leaderboard) return message.channel.send(`**BOT CURRENTLY CACHING...**\n(please wait a couple of seconds and try again)\n**ACTIVE EVTS:**\n${JSON.stringify(events.events)}`);
   if (!dbo) return message.channel.send("DB not yet connected...");
 
   try {
-    await command.execute(message, cache, client, dbo, pre);
-    console.log(`Command: ${command.name} In: ${message.guild.name} | ${message.content}`);
+    await command.execute({message:message, cache:cache, client:client, dbo:dbo, pre:pre, logger:new Logger(`c-${command.name}`, "green")});
+    commandlog.log(`${new Date().toUTCString()}: Command: ${command.name} In: ${message.guild.name} | ${message.content}`);
   } catch (error) {
-    console.log(error);
-    message.channel.send("There was an error.\n```" + error + "```");
+    message.channel.send(`\`\`\`${error}\`\`\``);
+    commandlog.error(error);
   }
 });
 
 const WebSocket = require("ws");
 const request = require("request");
 
-
-
-const EventGroup = require("./src/lib/eventgroup.js");
-
-const events = new EventGroup();
-
 function getLb() {
-  const constants = {
-    lb_cycles: 50
-  };
-  let lb = [];
-  for(let i = 0; i < constants.lb_cycles; i++) {
-    events.on(`lb-${i}`, (e) => {
-      let apiopt = "";
-      if(e.base) {
-        apiopt = "?count=1000";
-      } else {
-        apiopt = `?count=1000&offset_score=${e.offset}`;
+  function done(ships) {
+    cachelog.success("DONE.");
+  }
+  function getSec(offset, rvar, done) {
+    request(`https://master.drednot.io/api/scoreboard?count=1000&offset_score=${offset}`, (error, response, body) => {
+      if(error) throw error;
+      let result = JSON.parse(body);
+      if(result.error) console.error(result.error);
+      let ships = result.ships;
+      for(let i in ships) {
+        rvar.push(ships[i]);
       }
-      request(`https://master.drednot.io/api/scoreboard${apiopt}`, (error, response, body) => {
-        let tmplb = JSON.parse(body).ships;
-        lb = lb.concat(tmplb);
+      let newoffset = ships[ships.length-1].score;
+      cachelog.log(`lb ${offset}-${newoffset}`);
+      if(newoffset >= offset) {
+        done();
+      } else {
         setTimeout(() => {
-          if(i < constants.lb_cycles-1) {
-            events.trigger(`lb-${i+1}`, {
-              base: false,
-              offset: JSON.parse(body).ships[JSON.parse(body).ships.length-1].score
-            });
-          } else {
-            cache.leaderboard = lb;
-            console.log("Done. RECACHE-1H");
-          }
-        }, 500);
-      });
+          getSec(newoffset, rvar, done);
+        }, 1000);
+      }
     });
   }
-  events.trigger("lb-0", {base:true});
-};
+  request("https://master.drednot.io/api/scoreboard?count=1000", (error, response, body) => {
+    if(error) throw error;
+    let o = JSON.parse(body).ships[0].score;
+    setTimeout(() => {
+      getSec(o, cache.leaderboard, done);
+    });
+  });
+}
 
 function getPlayers() {
   try {
@@ -254,9 +256,12 @@ function getPlayers() {
       sockets[i].addEventListener("message", (e) => {
         cache.dredplayers[i] = JSON.parse(e.data);
       });
+      sockets[i].onerror = (e) => {
+        cachelog.error(e);
+      }
     }
   } catch(err) {
-    console.log("PLAYERCOUNT FAIL (Server offline)");
+    cachelog.critical("PLAYERCOUNT FAIL (Server offline)");
   }
 };
 
@@ -265,10 +270,10 @@ setInterval(() => {
   getPlayers();
 }, 1000*10);
 
-cache.leaderboard = getLb();
+getLb();
 setInterval(() => {
-  cache.leaderboard = getLb();
-}, (1000*60)*60)
+  getLb();
+}, 1000*60*60*3)
 
 
 client.login(process.env.BOT_TOKEN);

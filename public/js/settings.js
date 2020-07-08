@@ -21,6 +21,7 @@ function idcookiecheck() {
           if(JSON.parse(xhr.responseText).check) {
             document.getElementById("info").innerHTML = "Success!";
             showSettings(JSON.parse(xhr.responseText));
+            console.log(xhr.responseText);
           } else {
             document.getElementById("info").innerHTML = "Invalid Cookie.";
           }
@@ -47,6 +48,7 @@ function login() {
         document.cookie = `dredsettingsid=${document.getElementById("idin").value};expires=${d.toUTCString()};path=/`;
         document.getElementById("info").innerHTML = "Success!";
         showSettings(JSON.parse(xhr.responseText));
+        console.log(xhr.responseText);
       } else {
         document.getElementById("info").innerHTML = "Invalid Token.";
       }
@@ -62,18 +64,13 @@ function showSettings(res) {
   document.getElementById("settingsbox").style.display = "block";
   document.getElementById("loginbox").style.display = "none";
   document.getElementById("s-prefix").value = res.prefix;
+  document.getElementById("s-allow-default").checked = res.allowdefault;
+  document.getElementById("s-react-unidentified").checked = res.reactunidentified;
+  document.getElementById("s-react-faces").checked = res.dontreactfaces;
 }
 function resetpre() {
   document.getElementById("s-prefix").value = ";";
 }
-/*settings: {
-  prefix: ";",
-  allowdefault: true,
-  reactunidentified: true,
-  dontreactfaces: false,
-  adminallcommands: true,
-  warnnoaccess: true
-}*/
 function submitsettings() {
   let id = "";
   let name = "dredsettingsid=";
@@ -97,7 +94,7 @@ function submitsettings() {
     reactunidentified: document.getElementById("s-react-unidentified").checked,
     dontreactfaces: document.getElementById("s-react-faces").checked,
     adminallcommands: document.getElementById("s-admin-command").checked,
-    warnonaccess: document.getElementById("s-access-warn").checked
+    warnonaccess: document.getElementById("s-access-warn").checked,
     id: id
   }));
   xhr.onreadystatechange = () => {

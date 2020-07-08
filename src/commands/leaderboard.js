@@ -4,7 +4,8 @@ module.exports = {
   sname: "lb",
   description: "display the top 10 ships in the production servers",
   documentation: "Old leaderboard. Displays the top 10 ships in the production server. Probably not ideal for anything other that looking at the very top ships.",
-  execute(message, cache, client, dbo, pre) {
+  execute(options) {
+    let {message, cache, client, dbo, pre} = options;
     request(`https://master.drednot.io/api/scoreboard?count=25`, (error, response, body) => {
       if (error) {
         message.channel.send(`There was an error.\n\`${error}\``);

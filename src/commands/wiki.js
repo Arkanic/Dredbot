@@ -4,7 +4,8 @@ module.exports = {
   name: "wiki",
   description: "Display information about an item from the unofficial wiki",
   documentation: "Displays the top paragraph from the page of the sent wiki query; not the best, and might be improved.",
-  execute(message, cache, client, dbo, pre) {
+  execute(options) {
+    let {message, cache, client, dbo, pre} = options;
     let query = message.content.substr(pre.length + this.name.length);
     wiki.getSearchList({query:query}).then((data) => {
       if(!data.items[0]) return message.reply("no results for this query.");
