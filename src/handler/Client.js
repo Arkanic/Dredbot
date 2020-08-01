@@ -5,7 +5,7 @@ module.exports = class extends Client {
       disableEveryone: true,
       disabledEvents: ["TYPING_START"] // typing is a no no
     });
-    this.commands = new Collection();
+    this.commands = new Collection(); // command collection
     this.config = config;
   }
 }

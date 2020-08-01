@@ -1,18 +1,13 @@
+const trunc = require("../lib/truncatestr.js");
+const hasPermission = require("../lib/discord/haspermission");
 module.exports = {
   name: "settings",
-  description: "Various server-specific settings",
-  documentation: "Change the bot's prefix for the server.",
+  description: "give you your server id",
+  documentation: "Give you your server id/login for the settings page.",
   execute(options) {
     let {message, cache, client, dbo, pre} = options;
-    if(!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send("**You don't have permission to do that!**");
-    let newpre = message.content.substr(pre.length+1 + this.name.length);
-    let query = {id: message.guild.id};
-    cache.settings[message.guild.id].settings.prefix = newpre;
-    console.log(cache.settings[message.guild.id]);
-    let newvalues = {$set:{"settings.prefix":newpre}};
-    dbo.collection("settings").updateOne(query, newvalues, (err, res) => {
-      if(err) throw err;
-      message.channel.send(`**Prefix updated to \`${newpre}\`.**`);   
-    });
+    if(hasPermission(message, "ADMINISTRATOR")) return message.channel.send("You don't have permission to do that.");
+    message.channel.send("DMed you instructions + server id.");
+    message.author.send(`Your settings id is **\`${cache.settings[message.guild.id].loginid}\`**. go to https://dredbot--tal0s.repl.co/settings.html to login with that token and change your servers' settings.`);
   }
 }

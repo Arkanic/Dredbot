@@ -4,7 +4,7 @@ function loadserversinfo() {
     if(this.readyState == 4 && this.status == 200) {
       let servers = JSON.parse(this.responseText);
       document.getElementById("servercount").innerHTML = `Used in over ${Object.keys(servers).length} servers, including:`;
-      for(let i = 0; i<5; i++) {
+      for(let i = 0; i < 10; i++) {
         let sn = [];
         for(let i in servers) {
           sn.push(i);
