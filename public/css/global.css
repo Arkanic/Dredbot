@@ -56,3 +56,6 @@ div.grad {
     font-size: 18px;
   }
 }
+.thumbnail {
+  border-radius: 50%;
+}

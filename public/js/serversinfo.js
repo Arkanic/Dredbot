@@ -9,15 +9,20 @@ function loadserversinfo() {
         for(let i in servers) {
           sn.push(i);
         }
+        let div = document.createElement("div");
+        div.className = "tooltip";
         let sern = Math.max(...sn);
-        let text = document.createElement("figcaption").appendChild(document.createTextNode(servers[sern].name));
+        let text = document.createElement("span");
+        text.appendChild(document.createTextNode(servers[sern].name));
+        text.className = "tooltiptext";
         let iconimg = document.createElement("img");
+        iconimg.classList.add("thumbnail");
         iconimg.src=servers[sern].icon;
         iconimg.width=64;
         iconimg.height=64;
-        document.getElementById("topservers").appendChild(iconimg);
-        document.getElementById("topservers").appendChild(text);
-        document.getElementById("topservers").appendChild(document.createElement("hr"));
+        div.appendChild(iconimg);
+        div.appendChild(text);
+        document.getElementById("topservers").appendChild(div);
         delete servers[sern];
       }
     }

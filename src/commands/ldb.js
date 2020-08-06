@@ -4,7 +4,6 @@ const trunc = require("../lib/truncatestr");
 function comNum(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
 module.exports = {
   name: "ldb",
   description: "A better Leaderboard",
