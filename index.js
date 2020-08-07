@@ -339,4 +339,8 @@ setInterval(() => {
 
 // login
 // why is this at the bottom
-client.login(process.env.BOT_TOKEN);
+if(process.env.NODE_ENV == "production") {
+  client.login(process.env.BOT_TOKEN);
+} else if(process.env.NODE_ENV == "development") {
+  client.login(process.env.DEV_TOKEN);
+}
