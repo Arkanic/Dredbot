@@ -142,7 +142,10 @@ client.once("ready", () => {
     });
   }, constants.BOT_REFRESH_PRESENCE);
   // initial mongodb
-  MongoClient.connect(process.env.MONGODB, {useUnifiedTopology:true}, (err, db) => {
+  let mongodblogin;
+  if(process.env.NODE_ENV == "production") mongodblogin = process.env.MONGODB;
+  else if(process.env.NODE_ENV == "development") mongodblogin = require("./gitpodconfig.json").mongodb;
+  MongoClient.connect(mongodblogin, {useUnifiedTopology:true}, (err, db) => {
     if(err) logger.critical(err);
     let mdb = db.db("dredbot");
     dbo = mdb;
@@ -342,6 +345,6 @@ setInterval(() => {
 if(process.env.NODE_ENV == "production") {
   client.login(process.env.BOT_TOKEN);
 } else if(process.env.NODE_ENV == "development") {
-    console.log(process.env.DEV_TOKEN);
-  client.login(process.env.DEV_TOKEN);
+  const gitconfig = require("./gitpodconfig.json");
+  client.login(gitconfig.devtoken);
 }
