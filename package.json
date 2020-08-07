@@ -7,20 +7,24 @@
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",
     "cors": "^2.8.5",
-    "discord.js": "^11.5.1",
+    "cross-env": "^7.0.2",
+    "discord.js": "^11.6.4",
     "express": "^4.17.1",
-    "mongodb": "^3.5.7",
+    "jsdom": "^16.3.0",
+    "mongodb": "^3.6.0",
     "nodewikiaapi": "^2.0.3",
+    "puppeteer": "^5.2.1",
     "regex-parser": "^2.2.10",
     "request": "^2.88.2",
     "shortid": "^2.2.15",
-    "ws": "^7.3.0",
+    "ws": "^7.3.1",
     "yet-another-name-generator": "^1.0.4"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development node index.js"
   },
   "repository": {
     "type": "git",

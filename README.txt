@@ -1,3 +1,5 @@
+[![Run on Repl.it](https://repl.it/badge/github/Arkanic/dredbot)](https://repl.it/github/Arkanic/dredbot)
+
 dredbot....
 well done for finding the source code.
 
