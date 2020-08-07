@@ -342,5 +342,6 @@ setInterval(() => {
 if(process.env.NODE_ENV == "production") {
   client.login(process.env.BOT_TOKEN);
 } else if(process.env.NODE_ENV == "development") {
+    console.log(process.env.DEV_TOKEN);
   client.login(process.env.DEV_TOKEN);
 }
