@@ -155,7 +155,7 @@ client.once("ready", () => {
         if(cache.settings) {
           cache.settings[results[i].id] = results[i];
         } else {
-          logger.critical(`MongoDB Inst "${i}" has no settings`);
+          logger.critical(`MongoDB Inst "${i}" has no settings object`);
         }
       };
     });

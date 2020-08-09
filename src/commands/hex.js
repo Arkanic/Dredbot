@@ -8,7 +8,7 @@ module.exports = {
   execute(options) {
     let {message, cache, client, dbo, pre} = options;
     let query = message.content.split(" ")[1];
-    let match = cache.leaderboard.filter(s => s.hex_code == query)[0];
+    let match = cache.leaderboard.filter(s => s.hex_code.toLowerCase() == query.toLowerCase())[0];
     if(match) {
       const embed = {
         color: match.color,
