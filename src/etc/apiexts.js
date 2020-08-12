@@ -2,5 +2,6 @@ module.exports = {
   documentation: "/documentation",
   discservers: "/servers",
   settingscheck: "/settingscheck",
-  settingschange: "/settingschange"
+  settingschange: "/settingschange",
+  ldb: "/ldb"
 };

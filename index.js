@@ -117,6 +117,15 @@ app.post("/api"+apiexts.settingschange, (request, response) => {
     dbolog.success(`Updated GP`);
   });
 });
+// ldb api for chrome extension
+app.post("/api"+apiexts.ldb, (request, response) => {
+  response.type("json");
+  let query = request.search;
+  let matches = cache.leaderboard.filter(s => s.name.includes(query.toLowerCase()));
+  response.send(JSON.stringify({
+    matches
+  }));
+});
 
 const MongoClient = require("mongodb");
 let dbo;
@@ -221,7 +230,10 @@ client.on("message", async message => {
 
   if (message.author.bot) return;
   // noexistant command
-  if (!command) return message.react("🤔");
+  if (!command) {
+    const faces = [";-;", ";)", ";(", ";|"];
+    if(!faces.includes(face => face == message.content)) return message.react("🤔");
+  }
   if (!dbo) return message.channel.send("DB not yet connected...");
 
   try {
