@@ -16,6 +16,7 @@ logger.log("starting...");
 const dbolog = new Logger("mongo", "yellow");
 const cachelog = new Logger("cache", "red");
 const commandlog = new Logger("comhandle", "green");
+const apilog = new Logger("api", "purple");
 
 const app = express();
 // was getting a bunch of CORS errors for some dumb reason
@@ -120,11 +121,48 @@ app.post("/api"+apiexts.settingschange, (request, response) => {
 // ldb api for chrome extension
 app.post("/api"+apiexts.ldb, (request, response) => {
   response.type("json");
-  let query = request.search;
-  let matches = cache.leaderboard.filter(s => s.name.includes(query.toLowerCase()));
+  let query = request.body.search;
+  let token = request.body.token;
+  dbo.collection("tokens").find({token}).toArray((err, result) => {
+    if(err) dbolog.error(err);
+    if(!result[0]) {
+      response.send(JSON.stringify({
+        error: "invalid token"
+      }));
+      apilog.warn(`invalid token ${token || "[none]"} provided for ldb api.`);
+    } else {
+      let matches = cache.leaderboard.filter(s => s.ship_name.toLowerCase().includes(query.toLowerCase()));
+      response.send(JSON.stringify({
+        error: false,
+        matches
+      }));
+      apilog.log(`sent ldb api results for ${query} to token ${token}`);
+    }
+  });
+});
+// extension token generator
+app.get("/api"+apiexts.getextensiontoken, (request, response) => {
+  response.type("json");
+  let token = shortid();
   response.send(JSON.stringify({
-    matches
+    token
   }));
+  dbo.collection("tokens").insertOne({token}, (err, res) => {
+    if(err) dbolog.error(err);
+    else dbolog.success(`extension token ${token} generated!`);
+  });
+});
+// extension token deleter
+app.post("/api"+apiexts.endextensiontoken, (request, response) => {
+  response.type("json");
+  let token = request.body.token;
+  response.send(JSON.stringify({
+    done: true
+  }));
+  dbo.collection("tokens").deleteOne({token}, (err, obj) => {
+    if(err) dbolog.error(err);
+    else dbolog.success(`extension token ${token} deleted`);
+  })
 });
 
 const MongoClient = require("mongodb");

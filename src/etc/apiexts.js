@@ -3,5 +3,7 @@ module.exports = {
   discservers: "/servers",
   settingscheck: "/settingscheck",
   settingschange: "/settingschange",
-  ldb: "/ldb"
+  ldb: "/ldb",
+  getextensiontoken: "/getextensiontoken",
+  endextensiontoken: "/endextensiontoken"
 };
