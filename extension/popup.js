@@ -21,5 +21,5 @@ submit.addEventListener("click", () => {
         results.innerHTML = `None-200 HTTP res code ${xhr.status}!`;
       }
     }
-  }
+  });
 });
