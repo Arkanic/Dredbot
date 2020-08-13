@@ -152,18 +152,6 @@ app.get("/api"+apiexts.getextensiontoken, (request, response) => {
     else dbolog.success(`extension token ${token} generated!`);
   });
 });
-// extension token deleter
-app.post("/api"+apiexts.endextensiontoken, (request, response) => {
-  response.type("json");
-  let token = request.body.token;
-  response.send(JSON.stringify({
-    done: true
-  }));
-  dbo.collection("tokens").deleteOne({token}, (err, obj) => {
-    if(err) dbolog.error(err);
-    else dbolog.success(`extension token ${token} deleted`);
-  })
-});
 
 const MongoClient = require("mongodb");
 let dbo;
