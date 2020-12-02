@@ -47,6 +47,8 @@ const presencetypes = require("./src/etc/presencetypes.js");
 const client = new Client();
 client.commands = new Discord.Collection();
 
+const envs = require("./env");
+
 // main cache variables
 // TODO: see if there is a better system for this
 let cache = {
@@ -193,7 +195,7 @@ client.once("ready", () => {
   }, constants.BOT_REFRESH_PRESENCE);
   // initial mongodb
   let mongodblogin;
-  if(process.env.NODE_ENV == "production") mongodblogin = process.env.MONGODB;
+  if(process.env.NODE_ENV == "production") mongodblogin = envs.MONGODB;
   else if(process.env.NODE_ENV == "development") mongodblogin = require("./gitpodconfig.json").mongodb;
   MongoClient.connect(mongodblogin, {useUnifiedTopology:true}, (err, db) => {
     if(err) logger.critical(err);
@@ -412,7 +414,7 @@ setInterval(() => {
 // login
 // why is this at the bottom
 if(process.env.NODE_ENV == "production") {
-  client.login(process.env.BOT_TOKEN);
+  client.login(envs.BOT_TOKEN);
 } else if(process.env.NODE_ENV == "development") {
   const gitconfig = require("./gitpodconfig.json");
   client.login(gitconfig.devtoken);
