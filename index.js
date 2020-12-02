@@ -196,7 +196,7 @@ client.once("ready", () => {
   // initial mongodb
   let mongodblogin;
   if(process.env.NODE_ENV == "production") mongodblogin = envs.MONGODB;
-  else if(process.env.NODE_ENV == "development") mongodblogin = require("env.js").MONGODB
+  else if(process.env.NODE_ENV == "development") mongodblogin = require("./env.js").MONGODB
   MongoClient.connect(mongodblogin, {useUnifiedTopology:true}, (err, db) => {
     if(err) logger.critical(err);
     let mdb = db.db("dredbot");
