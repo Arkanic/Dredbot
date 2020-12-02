@@ -1,4 +1,18 @@
 // hi, GOTO README.TXT
+
+fetch = require('node-fetch')
+fetch("https://master.drednot.io:4100/shiplist",{
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain;charset=UTF-8",
+              "origin" : "https://drednot.io",
+              "user-agent" : "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+            },
+            body: JSON.stringify({server_id : 0, invite_code: ''})
+          }).then(async (res) => {
+            console.log(await res.json());
+          });
+
 const http = require("http");
 const path = require("path");
 const url = require("url");
@@ -39,6 +53,7 @@ let cache = {
   dredplayers:{},
   leaderboard:[],
   tleaderboard:[],
+  botmeta:{},
   settings: {}
 };
 
@@ -364,6 +379,22 @@ function getPlayers() {
     cachelog.critical("PLAYERCOUNT FAIL (Server offline)");
   }
 };
+
+function getBotMetadata(client) {
+  let guilds = client.guilds.array();
+  cache.botmeta["guilds"] = guilds.length;
+  cache.botmeta["users"] = [];
+
+  for(let i = 0; i < guilds.length; i++) {
+    client.guilds.get(guilds[i].id).fetchMembers().then(r => {
+      r.members.array().forEach(r => {
+        let username = `${r.user.username}#${r.user.discriminator}`;
+        cache.botmeta["users"].push(username);
+      });
+    });
+  }
+  logger.success(`Got bot-related metadata. Guilds: ${cache.botmeta["guilds"]}, Users: ${cache.botmeta["users"].length}`)
+}
 
 // cache reset intervals
 getPlayers();
