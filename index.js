@@ -196,7 +196,7 @@ client.once("ready", () => {
   // initial mongodb
   let mongodblogin;
   if(process.env.NODE_ENV == "production") mongodblogin = envs.MONGODB;
-  else if(process.env.NODE_ENV == "development") mongodblogin = require("./gitpodconfig.json").mongodb;
+  else if(process.env.NODE_ENV == "development") mongodblogin = require("env.js").MONGODB
   MongoClient.connect(mongodblogin, {useUnifiedTopology:true}, (err, db) => {
     if(err) logger.critical(err);
     let mdb = db.db("dredbot");
@@ -416,6 +416,6 @@ setInterval(() => {
 if(process.env.NODE_ENV == "production") {
   client.login(envs.BOT_TOKEN);
 } else if(process.env.NODE_ENV == "development") {
-  const gitconfig = require("./gitpodconfig.json");
-  client.login(gitconfig.devtoken);
+  const gitconfig = require("./env.js");
+  client.login(gitconfig.DEV_TOKEN);
 }
